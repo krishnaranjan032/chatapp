@@ -5,11 +5,16 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import connectDB from "./config/db.js";
 
+import userRoutes from "./routes/user.route.js";
+
 const app = express();
 
 app.use(express.json());
 
-connectDB()
+//routes
+app.use("/api/user", userRoutes);
+
+connectDB();
 
 const PORT = process.env.PORT;
 
