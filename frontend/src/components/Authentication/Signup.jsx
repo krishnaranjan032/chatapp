@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -15,7 +16,23 @@ const Signup = () => {
   const navigateToChats = () => navigate("/chats");
 
   const submitHandler = async () => {
-    // Your submit handler logic goes here
+    try {
+      const userData = {
+        name,
+        email,
+        password,
+        pic,
+      };
+      const res = await axios.post("http://localhost:5000/api/user/", userData);
+      console.log("User created successfully:", res.status);
+      if (res.status === 201) {
+        navigate("/chat");
+      } else {
+        console.error("Error creating user:", res.data.message);
+      }
+    } catch (error) {
+      console.error("Error creating user:", error);
+    }
   };
 
   const postDetails = (pics) => {

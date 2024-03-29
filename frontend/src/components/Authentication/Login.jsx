@@ -26,16 +26,17 @@ const Login = () => {
         },
       };
 
-      const { data } = await axios.post(
-        "/api/user/login",
+      const res = await axios.post(
+        "http://localhost:5000/api/user/login",
         { email, password },
         config
       );
-
+      console.log(res.data);
+      const data = res?.data;
       alert("Login Successful");
-      localStorage.setItem("userInfo", JSON.stringify(data));
+        localStorage.setItem("userInfo", JSON.stringify(data));
       setLoading(false);
-      navigate("/chats"); // Navigate using navigate function
+      navigate("/chat"); // Navigate using navigate function
     } catch (error) {
       alert(error.response.data.message);
       setLoading(false);
