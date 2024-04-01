@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -16,27 +17,115 @@ const Signup = () => {
   const navigateToChats = () => navigate("/chats");
 
   const submitHandler = async () => {
+    // try {
+    //   const userData = {
+    //     name,
+    //     email,
+    //     password,
+    //     pic,
+    //   };
+    //   const res = await axios.post("http://localhost:5000/api/user/", userData);
+    //   console.log("User created successfully:", res.status);
+    //   if (res.status === 201) {
+    //     navigate("/chat");
+    //   } else {
+    //     console.error("Error creating user:", res.data.message);
+    //   }
+    // } catch (error) {
+    //   console.error("Error creating user:", error);
+    // }
+
+    setPicLoading(true);
+    if (!name || !email || !password || !confirmPassword) {
+      toast.warning("Please Fill all the Fields", {
+        autoClose: 5000,
+        position: toast.POSITION.BOTTOM_CENTER,
+      });
+      setPicLoading(false);
+      return;
+    }
+    if (password !== confirmPassword) {
+      toast.warning("Passwords Do Not Match", {
+        autoClose: 5000,
+        position: toast.POSITION.BOTTOM_CENTER,
+      });
+      setPicLoading(false);
+      return;
+    }
+    console.log(name, email, password, pic);
     try {
-      const userData = {
-        name,
-        email,
-        password,
-        pic,
+      const config = {
+        headers: {
+          "Content-type": "application/json",
+        },
       };
-      const res = await axios.post("http://localhost:5000/api/user/", userData);
-      console.log("User created successfully:", res.status);
-      if (res.status === 201) {
-        navigate("/chat");
-      } else {
-        console.error("Error creating user:", res.data.message);
-      }
+      const { data } = await axios.post(
+        "/api/user",
+        {
+          name,
+          email,
+          password,
+          pic,
+        },
+        config
+      );
+      console.log(data);
+      toast.success("Registration Successful", {
+        autoClose: 5000,
+        position: toast.POSITION.BOTTOM_CENTER,
+      });
+      localStorage.setItem("userInfo", JSON.stringify(data));
+      setPicLoading(false);
+      // Assuming `history` is available in scope
+      history.push("/chats");
     } catch (error) {
-      console.error("Error creating user:", error);
+      toast.error("Error Occurred!", {
+        autoClose: 5000,
+        position: toast.POSITION.BOTTOM_CENTER,
+      });
+      setPicLoading(false);
     }
   };
 
   const postDetails = (pics) => {
     // Your post details logic goes here
+    setPicLoading(true);
+    if (pics === undefined) {
+      toast.warning("Please Select an Image!", {
+        autoClose: 5000,
+        position: toast.POSITION.BOTTOM_CENTER,
+      });
+      return;
+    }
+    console.log(pics);
+    if (pics.type === "image/jpeg" || pics.type === "image/png") {
+      const data = new FormData();
+      data.append("file", pics);
+      data.append("upload_preset", "chat app");
+      data.append("cloud_name", "dhaeg5fz2");
+      fetch("https://api.cloudinary.com/v1_1/dhaeg5fz2/image/upload", {
+        method: "post",
+        body: data,
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          console.log(data, "line 61");
+          setPic(data.url.toString());
+          console.log(data.url.toString());
+          setPicLoading(false);
+        })
+        .catch((err) => {
+          console.log(err);
+          setPicLoading(false);
+        });
+    } else {
+      toast.warning("Please Select an Image!", {
+        autoClose: 5000,
+        position: toast.POSITION.BOTTOM_CENTER,
+      });
+      setPicLoading(false);
+      return;
+    }
   };
 
   return (
